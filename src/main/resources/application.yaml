@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: securityguard-notification-service
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          # identity-service publishes its RS256 public key here
+          jwk-set-uri: ${JWT_JWK_SET_URI:http://localhost:8080/oauth2/jwks}
+          # must equal identity's app.oauth2.public-url
+          issuer-uri: ${JWT_ISSUER_URI:http://localhost:8080}
+
+services:
+  identity:
+    base-url: ${IDENTITY_SERVICE_URL:http://localhost:8080}
+    client-id: ${IDENTITY_OAUTH_CLIENT_ID:securityguard-notification}
+    client-secret: ${IDENTITY_OAUTH_CLIENT_SECRET:}
+    scopes: users.read
+
+# sg-messaging activates RabbitMQ consumers only when both properties below match.
+# Keep it off by default so a local HTTP-only run does not try to connect to RabbitMQ.
+app:
+  messaging:
+    broker:
+      type: ${MESSAGING_BROKER_TYPE:rabbit}
+    consumer:
+      enabled: ${MESSAGING_CONSUMER_ENABLED:false}
+      retry-delays-ms: [10000, 60000, 300000]
